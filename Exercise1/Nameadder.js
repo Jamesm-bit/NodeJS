@@ -1,17 +1,23 @@
 const mongoose = require('mongoose');
-const http = require('http')
-const fs = require('fs');
 const express = require('express');
 const path = require('path')
 const app = new express()
 const bodyParser = require('body-parser');
-
-
+const MongoClient = require('mongodb').MongoClient;
+const { countReset } = require('console');
+let db = null
+let namesCollection = null
 const PORT = process.env.PORT || 5000
 
+MongoClient.connect('mongodb+srv://JamesMorris:Password123@practicecluster.yr6ww.mongodb.net/Users?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(client => {
+        db = client.db('Users')
+        namesCollection = db.collection('names')
+    })
 mongoose.connect('mongodb+srv://JamesMorris:Password123@practicecluster.yr6ww.mongodb.net/Users?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error('Could not connect to MongoDB', err))
+
 
 
 app.use(bodyParser.json())
@@ -20,8 +26,8 @@ app.use(express.json())
 
 const nameSchema = new mongoose.Schema({
     id: Number,
-    fname: String,
-    lname: String
+    fName: String,
+    lName: String
 });
 const Name = mongoose.model('Name', nameSchema)
 
@@ -30,36 +36,65 @@ async function updateName(f, l) {
 }
 
 async function addName(i, f, l) {
-    let fname = toString(f)
     const name = new Name({
         id: i,
-        fName: 'fname',
-        lName: 'toString(l)'
+        fName: f,
+        lName: l
     })
-    console.log(name)
+    const result = await name.save()
+    /*
     const result = await Name.create({
         id: i,
         fName: fname,
         lName: toString(l)
     })
-    console.log(result)
+    */
+}
+
+async function findNames(i, f, l) {
+    const name = await Name
+        .find({ id: i })
+    console.log(name)
+    if (name.length == 0) {
+        addName(i, f, l)
+    } else {
+        const result = await Name.findOneAndUpdate({ id: i }, {
+            fName: f,
+            lName: l
+        },{useFindAndModify: true})
+    }
+
+}
+
+async function deleteName(i) {
+    const result = await Name.findOneAndDelete({id:i}, (err, docs) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Deleted User : ", docs)
+        }
+    })
 }
 
 app.post('/', (req, res) => {
-    const findName = Name.findById(req.body.id)
-    if (!findName) {
-        findName.set({
-            fName: req.body.fName,
-            lName: req.body.lName
-        })
-    } else {
-        addName(req.body.id, req.body.fName, req.body.lName)
-    }
+    findNames(req.body.id, req.body.fName, req.body.lName)
+    res.json('Added')
 })
 
-app.get('/', (req, res) => {
-    console.log('get request recived')
-    res.send('Test')
+app.post('/delete', (req,res) => {
+    console.log(req.body.id+" deleted at this index")
+    deleteName(req.body.id)
+    res.json('deleted item')
+})
+
+app.get('/names', (req, res) => {
+    const allNames = db.collection('names').find().toArray()
+        .then(result => {
+            res.json(result)
+            /*
+            res.render('index.ejs', {}, {async:true})
+    */
+        }).catch(error => console.error(error))
 })
 
 app.use(express.static(path.join(__dirname, 'html')))

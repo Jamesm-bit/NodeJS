@@ -12,11 +12,9 @@ let divs = null
 let boxes2 = document.getElementsByClassName("chk")
 
 
-function sendData(i,f,l) {
+
+function sendData(i, f, l) {
     const XHR = new XMLHttpRequest();
-    console.log(i)
-    console.log(f)
-    console.log(l)
     XHR.addEventListener("load", (event) => {
         alert('Sent Correctly')
     })
@@ -29,24 +27,31 @@ function sendData(i,f,l) {
         fName: f,
         lName: l
     }
-    
+
     let body = JSON.stringify(user)
     XHR.open('POST', "/", true)
     XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     XHR.send(body)
 }
 
-function getData() {
-    const GXHR = new XMLHttpRequest()
-    GXHR.open('GET', "/", true)
-    GXHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    GXHR.send()
-    GXHR.onreadystatechange = (e) => {
-        console.log(GXHR.responseText)
+function deleteData(i) {
+    const DXHR = new XMLHttpRequest();
+    DXHR.addEventListener("load", (event) => {
+        alert('Sent Correctly')
+    })
+    DXHR.addEventListener('error', (event) => {
+        alert('Something went Wrong')
+    })
+
+    let user = {
+        id: i,
     }
+
+    let body = JSON.stringify(user)
+    DXHR.open('POST', "/delete", true)
+    DXHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    DXHR.send(body)
 }
-
-
 
 function uncheck(i) {
     if (document.getElementById("cB" + i)) {
@@ -86,49 +91,60 @@ function showcurrselec() {
     }
     document.getElementById("totalselec").innerHTML = `Total ${yt} Rows`
 }
-/*
-selecinterval = setInterval(function showselec() {
-    document.getElementById("totalselec").innerHTML = showcurrselec()
-}, 100)
-*/
-function addelement(f, l) {
-    i++
-    sendData(i,f,l)
-    getData()
+
+function addelement(num, f, l) {
+    let m;
+    m = num
+    if (!num) {
+        i++
+        m = i
+    }
+
     let fnames = document.getElementsByClassName("innamef")
     let lnames = document.getElementsByClassName("innamel")
+    let ids = document.getElementsByClassName("inid")
+
+
 
     if (fnames.length > 0) {
-        for (let z = 0; z < fnames.length; z++) {
-            if (f == fnames[z].innerHTML) {
-                for (let y = 0; y < fnames.length; y++) {
-                    if (l == lnames[y].innerHTML) {
-                        return
-                    }
+        for (let z = 0; z < ids.length; z++) {
+            if (m == ids[z].innerHTML) {
+                m++
+            }
+            for (let y = 0; y < fnames.length; y++) {
+                if (l == lnames[y].innerHTML && f == fnames[z].innerHTML) {
+                    return
                 }
             }
+
         }
     }
+
     divlist2 = document.createElement("div")
     divlist2.setAttribute("id", "div21")
     divlist2.setAttribute("class", "divhold")
 
     divlist = document.createElement("div")
-    divlist.setAttribute("id", "div" + i)
+    divlist.setAttribute("id", "div" + m)
     divlist.setAttribute("class", "div")
 
     checkBox = document.createElement('input')
     checkBox.setAttribute("class", "chk")
-    checkBox.setAttribute("id", "cB" + i)
+    checkBox.setAttribute("id", "cB" + m)
     checkBox.type = "checkbox"
 
+    idTag = document.createElement("p")
+    idTag.setAttribute("id", "id" + m)
+    idTag.setAttribute("class", "inid")
+    idTag.innerHTML = m
+
     fNameTag = document.createElement("p")
-    fNameTag.setAttribute("id", "fName" + i)
+    fNameTag.setAttribute("id", "fName" + m)
     fNameTag.setAttribute("class", "innamef")
     fNameTag.innerHTML = f
 
     lNameTag = document.createElement("p")
-    lNameTag.setAttribute("id", "lName" + i)
+    lNameTag.setAttribute("id", "lName" + m)
     lNameTag.setAttribute("class", "innamel")
     lNameTag.innerHTML = l
 
@@ -137,12 +153,12 @@ function addelement(f, l) {
     editbutton = document.createElement("button")
     editbutton.setAttribute("class", "fNameButton")
     editbutton.textContent = "Edit";
-    editbutton.id = ("edit" + i)
+    editbutton.id = ("edit" + m)
 
     delbutton = document.createElement("button")
     delbutton.setAttribute("class", "lNameButton")
     delbutton.textContent = "Delete";
-    delbutton.id = ("del" + i)
+    delbutton.id = ("del" + m)
 
     document.getElementById("fname").value = ""
     document.getElementById("lname").value = ""
@@ -152,20 +168,37 @@ function addelement(f, l) {
     divlist.appendChild(lNameTag)
     divlist.appendChild(editbutton)
     divlist.appendChild(delbutton)
+    divlist.appendChild(idTag)
     divlist2.appendChild(divlist)
     listele.appendChild(divlist2)
 
-    document.getElementById("cB" + i).addEventListener("click", uncheck.bind(null, i))
-    document.getElementById("edit" + i).addEventListener("click", editpush.bind(null, i))
-    document.getElementById("del" + i).addEventListener("click", del.bind(null, i))
+    document.getElementById("cB" + m).addEventListener("click", uncheck.bind(null, m))
+    document.getElementById("edit" + m).addEventListener("click", editpush.bind(null, m))
+    document.getElementById("del" + m).addEventListener("click", del.bind(null, m))
+    return (m)
 
-    
 }
 
+function getData() {
+    let nameData;
+    $.get("/names", (data) => {
+        nameData = data;
+        for (item in nameData) {
+            addelement(nameData[item].id, nameData[item].fName, nameData[item].lName)
+        }
+    })
+}
+
+getData()
+
 function editFinish() {
+    
+
     let fNameChange = document.getElementById("fname").value
     let lNameChange = document.getElementById("lname").value
-
+    console.log(v)
+    console.log(fNameChange)
+    console.log(lNameChange)
     let previousFName = document.getElementById("fName" + v)
     previousFName.innerHTML = fNameChange
 
@@ -184,13 +217,11 @@ function editFinish() {
         let boxinv = boxes[x]
         boxinv.style.visibility = "visible"
     }
+    sendData(v,fNameChange,lNameChange)
 }
 
 function editpush(j) {
-    $.get("/", (data,status) => {
-        console.log(data)
-    })
-
+    console.log(j)
     let fNameChange = document.getElementById("fName" + j).innerHTML
     let lNameChange = document.getElementById("lName" + j).innerHTML
 
@@ -219,7 +250,7 @@ function editpush(j) {
         let boxinv = boxes[x]
         boxinv.style.visibility = "hidden"
     }
-    
+
 }
 
 function del(z) {
@@ -232,13 +263,14 @@ function del(z) {
     */
     document.getElementById("div" + z).remove()
     document.getElementById("cB" + z).remove()
+    deleteData(z)
 }
 
 function add() {
     fname = document.getElementById("fname").value
     lname = document.getElementById("lname").value
-    addelement(fname, lname)
-    
+    let idnum = addelement(null, fname, lname)
+    sendData(idnum, fname, lname)
 }
 
 function render() {

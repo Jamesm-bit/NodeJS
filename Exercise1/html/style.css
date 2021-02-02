@@ -24,6 +24,9 @@ input {
 #Add {
   visibility: visible;
 }
+.inid {
+  visibility: hidden;
+}
 p {
   display: inline-block;
   width: 200px;
