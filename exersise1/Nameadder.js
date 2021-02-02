@@ -17,7 +17,7 @@ MongoClient.connect('mongodb+srv://JamesMorris:Password123@practicecluster.yr6ww
         app.use(express.static('public'))
         app.use(bodyParser.json())
 
-        app.get('/', (req, res) => {
+        app.get('/html/', (req, res) => {
             db.collection('names').find().toArray()
                 .then(result => {
                     console.log(result)

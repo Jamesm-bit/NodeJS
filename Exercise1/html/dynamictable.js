@@ -10,16 +10,16 @@ let checkBox = null
 let boxes = null
 let divs = null
 let boxes2 = document.getElementsByClassName("chk")
+let checkBoxes = document.getElementsByClassName("chk");
 
 
 
 function sendData(i, f, l) {
     const XHR = new XMLHttpRequest();
     XHR.addEventListener("load", (event) => {
-        alert('Sent Correctly')
     })
     XHR.addEventListener('error', (event) => {
-        alert('Something went Wrong')
+        alert(event)
     })
 
     let user = {
@@ -37,10 +37,9 @@ function sendData(i, f, l) {
 function deleteData(i) {
     const DXHR = new XMLHttpRequest();
     DXHR.addEventListener("load", (event) => {
-        alert('Sent Correctly')
     })
     DXHR.addEventListener('error', (event) => {
-        alert('Something went Wrong')
+        alert('Something went Wrong: '+event)
     })
 
     let user = {
@@ -59,37 +58,25 @@ function uncheck(i) {
             document.getElementById("checkbx").checked = false
         }
     }
-    showcurrselec
+    showcurrselec()
 }
 
 function checkall() {
-    if (checkbx.checked) {
-        let boxes = document.getElementsByClassName("chk")
-        for (let x = 0; x < boxes.length; x++) {
-            let box = boxes[x]
-            box.checked = true
-        }
-        x = 0
-    } else {
-        let boxes = document.getElementsByClassName("chk")
-        for (let x = 0; x < boxes.length; x++) {
-            let box = boxes[x]
-            box.checked = false
-        }
-        x = 0
+    checkBoxes = document.getElementsByClassName("chk");
+    for (let item in checkBoxes) {
+        checkBoxes[item].checked = $('#checkbx').is(':checked') ? true : false;
     }
-    document.getElementById("totalselec").innerHTML = showcurrselec()
-
+    showcurrselec()
 }
 
 function showcurrselec() {
-    let yt = 0
-    for (p = 0; p < boxes2.length; p++) {
-        if (boxes2[p].checked == true) {
-            yt++
+    let yt = 0;
+    for (let item in checkBoxes) {
+        if (checkBoxes[item].checked == true && typeof (checkBoxes[item]) == 'object') {
+            yt++;
         }
     }
-    document.getElementById("totalselec").innerHTML = `Total ${yt} Rows`
+    $("#totalselec").html(`Total ${yt} Selected Rows`);
 }
 
 function addelement(num, f, l) {
@@ -175,6 +162,7 @@ function addelement(num, f, l) {
     document.getElementById("cB" + m).addEventListener("click", uncheck.bind(null, m))
     document.getElementById("edit" + m).addEventListener("click", editpush.bind(null, m))
     document.getElementById("del" + m).addEventListener("click", del.bind(null, m))
+    sendData(m, f, l)
     return (m)
 
 }
@@ -196,9 +184,6 @@ function editFinish() {
 
     let fNameChange = document.getElementById("fname").value
     let lNameChange = document.getElementById("lname").value
-    console.log(v)
-    console.log(fNameChange)
-    console.log(lNameChange)
     let previousFName = document.getElementById("fName" + v)
     previousFName.innerHTML = fNameChange
 
@@ -221,7 +206,6 @@ function editFinish() {
 }
 
 function editpush(j) {
-    console.log(j)
     let fNameChange = document.getElementById("fName" + j).innerHTML
     let lNameChange = document.getElementById("lName" + j).innerHTML
 
@@ -254,13 +238,13 @@ function editpush(j) {
 }
 
 function del(z) {
-    console.log(z)
     /*
     document.getElementById("fName"+i).remove()
     document.getElementById("lname"+i).remove()
     document.getElementById("edit"+i).remove()
     document.getElementById("del"+i).remove()
     */
+    
     document.getElementById("div" + z).remove()
     document.getElementById("cB" + z).remove()
     deleteData(z)
@@ -270,12 +254,12 @@ function add() {
     fname = document.getElementById("fname").value
     lname = document.getElementById("lname").value
     let idnum = addelement(null, fname, lname)
-    sendData(idnum, fname, lname)
+    
 }
 
 function render() {
     for (let u = 0; u < 10; u++) {
-        addelement("test", "test" + u)
+        addelement(u, "test", "test" + u)
     }
 
     if (document.getElementById("checkbx").checked == true) {
@@ -283,32 +267,53 @@ function render() {
     }
 }
 function removechecked() {
+    let ids = document.getElementsByClassName("inid");
+    checkBoxes = document.getElementsByClassName("chk");
+    document.getElementById("checkbx").checked = false;
 
-    boxes = document.getElementsByClassName("chk")
-    divs = document.getElementsByClassName("div")
-    document.getElementById("checkbx").checked = false
-    for (let x = 0; x < boxes.length; x++) {
-        console.log(x)
-        let box = boxes[x]
-        let div = divs[x]
-
-        if (box.checked) {
-            box.parentNode.removeChild(box)
-            div.parentNode.removeChild(div)
-            x = 0
+    for (item in ids) {
+        
+        if(!(item == 'length' || item =='item'|| item == 'namedItem')){
+            if(checkBoxes[item].checked) {
+                del(ids[item].innerHTML) 
+            }
         }
+        
     }
-    for (x = 0; x < boxes.length; x++) {
-        console.log(x)
-        let box = boxes[x]
-        let div = divs[x]
-
-        if (box.checked) {
-            box.parentNode.removeChild(box)
-            div.parentNode.removeChild(div)
-            x = 0
+    ids = document.getElementsByClassName("inid");
+    checkBoxes = document.getElementsByClassName("chk");
+    for (item in ids) {
+        
+        if(!(item == 'length' || item =='item'|| item == 'namedItem')){
+            if(checkBoxes[item].checked) {
+                del(ids[item].innerHTML)
+            }
         }
+        
     }
+    ids = document.getElementsByClassName("inid");
+    checkBoxes = document.getElementsByClassName("chk");
+    for (item in ids) {
+        
+        if(!(item == 'length' || item =='item'|| item == 'namedItem')){
+            if(checkBoxes[item].checked) {
+                del(ids[item].innerHTML)
+            }
+        }
+        
+    }
+    ids = document.getElementsByClassName("inid");
+    checkBoxes = document.getElementsByClassName("chk");
+    for (item in ids) {
+        
+        if(!(item == 'length' || item =='item'|| item == 'namedItem')){
+            if(checkBoxes[item].checked) {
+                del(ids[item].innerHTML)
+            }
+        }
+        
+    }
+    checkall()
 }
 
 

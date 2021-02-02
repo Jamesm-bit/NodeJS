@@ -4,7 +4,6 @@ const path = require('path')
 const app = new express()
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
-const { countReset } = require('console');
 let db = null
 let namesCollection = null
 const PORT = process.env.PORT || 5000
@@ -31,9 +30,7 @@ const nameSchema = new mongoose.Schema({
 });
 const Name = mongoose.model('Name', nameSchema)
 
-async function updateName(f, l) {
 
-}
 
 async function addName(i, f, l) {
     const name = new Name({
@@ -42,26 +39,18 @@ async function addName(i, f, l) {
         lName: l
     })
     const result = await name.save()
-    /*
-    const result = await Name.create({
-        id: i,
-        fName: fname,
-        lName: toString(l)
-    })
-    */
 }
 
 async function findNames(i, f, l) {
     const name = await Name
         .find({ id: i })
-    console.log(name)
     if (name.length == 0) {
         addName(i, f, l)
     } else {
         const result = await Name.findOneAndUpdate({ id: i }, {
             fName: f,
             lName: l
-        },{useFindAndModify: true})
+        },{useFindAndModify: false})
     }
 
 }
@@ -71,7 +60,6 @@ async function deleteName(i) {
         if (err) {
             console.log(err)
         } else {
-            console.log("Deleted User : ", docs)
         }
     })
 }
@@ -91,9 +79,6 @@ app.get('/names', (req, res) => {
     const allNames = db.collection('names').find().toArray()
         .then(result => {
             res.json(result)
-            /*
-            res.render('index.ejs', {}, {async:true})
-    */
         }).catch(error => console.error(error))
 })
 
