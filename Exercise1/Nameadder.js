@@ -7,15 +7,22 @@ const MongoClient = require('mongodb').MongoClient;
 let db = null
 let namesCollection = null
 const PORT = process.env.PORT || 5000
+try {
+    MongoClient.connect('mongodb+srv://JamesMorris:Password123@practicecluster.yr6ww.mongodb.net/<dbname>?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(client => {
+            db = client.db('Users')
+            namesCollection = db.collection('names')
+        })
+} catch (error) {
+    console.log('The mongo Client has not connected and threw this error: ', error)
+}
+try {
+    mongoose.connect('mongodb+srv://JamesMorris:Password123@practicecluster.yr6ww.mongodb.net/<dbname>?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(() => console.log('Connected to MongoDB'))
+} catch (error) {
+    console.log(' The mongoose clients has not connected and threw this error: ', error)
+}
 
-MongoClient.connect('mongodb+srv://JamesMorris:Password123@practicecluster.yr6ww.mongodb.net/Users?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(client => {
-        db = client.db('Users')
-        namesCollection = db.collection('names')
-    })
-mongoose.connect('mongodb+srv://JamesMorris:Password123@practicecluster.yr6ww.mongodb.net/Users?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Could not connect to MongoDB', err))
 
 
 
@@ -38,7 +45,12 @@ async function addName(i, f, l) {
         fName: f,
         lName: l
     })
-    const result = await name.save()
+    try {
+        const result = await name.save()
+    } catch(err) {
+        console.log('There was an error when adding the name to the data base and it threw this error: ',err)
+    }
+    
 }
 
 async function findNames(i, f, l) {
@@ -47,16 +59,21 @@ async function findNames(i, f, l) {
     if (name.length == 0) {
         addName(i, f, l)
     } else {
-        const result = await Name.findOneAndUpdate({ id: i }, {
-            fName: f,
-            lName: l
-        },{useFindAndModify: false})
+        try {
+            const result = await Name.findOneAndUpdate({ id: i }, {
+                fName: f,
+                lName: l
+            }, { useFindAndModify: false })
+        } catch(err) {
+            console.log('there was an error when updating and it threw this error: ',err)
+        }
+        
     }
 
 }
 
 async function deleteName(i) {
-    const result = await Name.findOneAndDelete({id:i}, (err, docs) => {
+    const result = await Name.findOneAndDelete({ id: i }, (err, docs) => {
         if (err) {
             console.log(err)
         } else {
@@ -69,17 +86,22 @@ app.post('/', (req, res) => {
     res.json('Added')
 })
 
-app.post('/delete', (req,res) => {
-    console.log(req.body.id+" deleted at this index")
+app.post('/delete', (req, res) => {
+    console.log(req.body.id + " deleted at this index")
     deleteName(req.body.id)
     res.json('deleted item')
 })
 
 app.get('/names', (req, res) => {
-    const allNames = db.collection('names').find().toArray()
+    try {
+        const allNames = db.collection('names').find().toArray()
         .then(result => {
             res.json(result)
-        }).catch(error => console.error(error))
+        })
+    } catch(err) {
+        res.send('There was an issue with getting the database')
+    }
+    
 })
 
 app.use(express.static(path.join(__dirname, 'html')))

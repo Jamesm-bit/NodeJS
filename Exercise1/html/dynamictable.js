@@ -14,12 +14,12 @@ let checkBoxes = document.getElementsByClassName("chk");
 
 
 
-function sendData(i, f, l) {
+const sendData = (i, f, l) => {
     const XHR = new XMLHttpRequest();
     XHR.addEventListener("load", (event) => {
     })
     XHR.addEventListener('error', (event) => {
-        alert(event)
+        console.log({event})
     })
 
     let user = {
@@ -34,12 +34,12 @@ function sendData(i, f, l) {
     XHR.send(body)
 }
 
-function deleteData(i) {
+const deleteData = (i) => {
     const DXHR = new XMLHttpRequest();
     DXHR.addEventListener("load", (event) => {
     })
     DXHR.addEventListener('error', (event) => {
-        alert('Something went Wrong: '+event)
+        console.log({event})
     })
 
     let user = {
@@ -52,24 +52,22 @@ function deleteData(i) {
     DXHR.send(body)
 }
 
-function uncheck(i) {
-    if (document.getElementById("cB" + i)) {
-        if (document.getElementById("checkbx").checked) {
-            document.getElementById("checkbx").checked = false
-        }
+const unCheck = (i) => {
+    if ($("#cB" + i) && $("#checkbx").is(':checked')) {
+        $("#checkbx").prop('checked', false);
     }
-    showcurrselec()
+    showCurrSelec();
 }
 
-function checkall() {
+const checkAll = () => {
     checkBoxes = document.getElementsByClassName("chk");
     for (let item in checkBoxes) {
         checkBoxes[item].checked = $('#checkbx').is(':checked') ? true : false;
     }
-    showcurrselec()
+    showCurrSelec()
 }
 
-function showcurrselec() {
+const showCurrSelec = () => {
     let yt = 0;
     for (let item in checkBoxes) {
         if (checkBoxes[item].checked == true && typeof (checkBoxes[item]) == 'object') {
@@ -79,7 +77,7 @@ function showcurrselec() {
     $("#totalselec").html(`Total ${yt} Selected Rows`);
 }
 
-function addelement(num, f, l) {
+const addElement = (num, f, l) => {
     let m;
     m = num
     if (!num) {
@@ -87,9 +85,9 @@ function addelement(num, f, l) {
         m = i
     }
 
-    let fnames = document.getElementsByClassName("innamef")
-    let lnames = document.getElementsByClassName("innamel")
-    let ids = document.getElementsByClassName("inid")
+    const fNames = $(".innamef");
+    const lNames = $(".innamel");
+    const ids = $(".inid")
 
 
 
@@ -159,85 +157,68 @@ function addelement(num, f, l) {
     divlist2.appendChild(divlist)
     listele.appendChild(divlist2)
 
-    document.getElementById("cB" + m).addEventListener("click", uncheck.bind(null, m))
+    document.getElementById("cB" + m).addEventListener("click", unCheck.bind(null, m))
     document.getElementById("edit" + m).addEventListener("click", editpush.bind(null, m))
     document.getElementById("del" + m).addEventListener("click", del.bind(null, m))
     sendData(m, f, l)
     return (m)
 
 }
-
-function getData() {
+const getData = () => {
     let nameData;
     $.get("/names", (data) => {
         nameData = data;
         for (item in nameData) {
-            addelement(nameData[item].id, nameData[item].fName, nameData[item].lName)
+            addElement(nameData[item].id, nameData[item].fName, nameData[item].lName)
         }
     })
 }
 
 getData()
 
-function editFinish() {
-    
-
-    let fNameChange = document.getElementById("fname").value
-    let lNameChange = document.getElementById("lname").value
-    let previousFName = document.getElementById("fName" + v)
-    previousFName.innerHTML = fNameChange
-
-    let previousLName = document.getElementById("lName" + v)
-    previousLName.innerHTML = lNameChange
-    document.getElementById("edit" + v).style.visibility = "visible"
-    document.getElementById("del" + v).style.visibility = "visible"
-    document.getElementById("confirmEdit").style.visibility = "hidden"
-    document.getElementById("Add").style.visibility = "visible"
-    document.getElementById("fname").value = ""
-    document.getElementById("lname").value = ""
-    document.getElementById("checkdel").style.visibility = "visible"
-    document.getElementById("checkbx").style.visibility = "visible"
-    boxes = document.getElementsByClassName("chk")
-    for (let x = 0; x < boxes.length; x++) {
-        let boxinv = boxes[x]
-        boxinv.style.visibility = "visible"
+const editFinish = () => {
+    $("#fName" + v).html($("#fname").val());
+    $("#lName" + v).html($("#lname").val());
+    $("#edit" + v).css("visibility", "visible");
+    $("#del" + v).css("visibility", "visible");
+    $("#confirmEdit").css("visibility", "hidden");
+    $("#Add").css("visibility", "visible");
+    $("#fname").val('');
+    $("#lname").val('');
+    $("#checkdel").css("visibility", "visible");
+    $("#checkbx").css("visibility", "visible");
+    checkBoxes = $(".chk");
+    for (let item in checkBoxes) {
+        if (item < 10) {
+            checkBoxes[item].style.visibility = "visible";
+        }
     }
     sendData(v,fNameChange,lNameChange)
 }
 
-function editpush(j) {
-    let fNameChange = document.getElementById("fName" + j).innerHTML
-    let lNameChange = document.getElementById("lName" + j).innerHTML
-
-    document.getElementById("fname").value = fNameChange
-    document.getElementById("lname").value = lNameChange
-
-    let fbuttons = document.getElementsByClassName("fNameButton")
-    let lbuttons = document.getElementsByClassName("lNameButton")
-
-    for (item in fbuttons) {
-        if (item != "length" && item != "item" && item != "namedItem") {
-            fbuttons[item].style.visibility = "visible"
-            lbuttons[item].style.visibility = "visible"
+const editpush = (j) => {
+    v = j;
+    $("#fname").val($("#fName" + v).html());
+    $("#lname").val($("#lName" + v).html());
+    let fButtons = $(".fNameButton");
+    let lButtons = $(".lNameButton");
+    for (item in fButtons) {
+        /* turn into one and condition */
+        if (item != "length" && item != "item" && item != "namedItem" && item < 10) {
+            fButtons[item].style.visibility = "visible";
+            lButtons[item].style.visibility = "visible";
         }
     }
-
-    v = j
-    document.getElementById("checkdel").style.visibility = "hidden"
-    document.getElementById("checkbx").style.visibility = "hidden"
-    document.getElementById("edit" + v).style.visibility = "hidden"
-    document.getElementById("del" + v).style.visibility = "hidden"
-    document.getElementById("confirmEdit").style.visibility = "visible"
-    document.getElementById("Add").style.visibility = "hidden"
-    boxes = document.getElementsByClassName("chk")
-    for (let x = 0; x < boxes.length; x++) {
-        let boxinv = boxes[x]
-        boxinv.style.visibility = "hidden"
-    }
-
+    $("#checkdel").css('visibility', 'hidden');
+    $("#checkbx").css('visibility', 'hidden');
+    $("#edit" + v).css('visibility', 'hidden');
+    $("#del" + v).css('visibility', 'hidden');
+    $("#confirmEdit").css("visibility", "visible");
+    $("#Add").css('visibility', 'hidden');
+    $("#cB" + v).css('visibility', 'hidden');
 }
 
-function del(z) {
+const del = (z) => {
     /*
     document.getElementById("fName"+i).remove()
     document.getElementById("lname"+i).remove()
@@ -250,23 +231,23 @@ function del(z) {
     deleteData(z)
 }
 
-function add() {
+const add = () => {
     fname = document.getElementById("fname").value
     lname = document.getElementById("lname").value
-    let idnum = addelement(null, fname, lname)
+    let idnum = addElement(null, fname, lname)
     
 }
 
-function render() {
+const render = () => {
     for (let u = 0; u < 10; u++) {
-        addelement(u, "test", "test" + u)
+        addElement(u, "test", "test" + u)
     }
 
     if (document.getElementById("checkbx").checked == true) {
-        checkall()
+        checkAll()
     }
 }
-function removechecked() {
+const removechecked = () => {
     let ids = document.getElementsByClassName("inid");
     checkBoxes = document.getElementsByClassName("chk");
     document.getElementById("checkbx").checked = false;
@@ -313,12 +294,10 @@ function removechecked() {
         }
         
     }
-    checkall()
+    checkAll()
 }
 
-
-
-document.getElementById("checkbx").addEventListener("click", checkall)
+document.getElementById("checkbx").addEventListener("click", checkAll)
 document.getElementById("checkdel").addEventListener("click", removechecked)
 document.getElementById("render").addEventListener("click", render)
 document.getElementById("confirmEdit").addEventListener("click", editFinish.bind(null, v))
