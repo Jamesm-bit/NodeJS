@@ -7,12 +7,14 @@ const MongoClient = require('mongodb').MongoClient;
 let db = null
 let namesCollection = null
 const PORT = process.env.PORT || 5000
+
 try {
     MongoClient.connect('mongodb+srv://JamesMorris:Password123@practicecluster.yr6ww.mongodb.net/<dbname>?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
         .then(client => {
             db = client.db('Users')
             namesCollection = db.collection('names')
         })
+        console.log('MongoClient connected')
 } catch (error) {
     console.log('The mongo Client has not connected and threw this error: ', error)
 }
@@ -37,7 +39,10 @@ const nameSchema = new mongoose.Schema({
 });
 const Name = mongoose.model('Name', nameSchema)
 
-
+async function getAllNames() {
+    console.log(db.collection('names').find().toArray())
+    return db.collection('names').find().toArray()
+}
 
 async function addName(i, f, l) {
     const name = new Name({
@@ -66,10 +71,8 @@ async function findNames(i, f, l) {
             }, { useFindAndModify: false })
         } catch(err) {
             console.log('there was an error when updating and it threw this error: ',err)
-        }
-        
+        }   
     }
-
 }
 
 async function deleteName(i) {
@@ -94,15 +97,20 @@ app.post('/delete', (req, res) => {
 
 app.get('/names', (req, res) => {
     try {
-        const allNames = db.collection('names').find().toArray()
+        const allNames = getAllNames()
         .then(result => {
             res.json(result)
         })
+        console.log(allNames)
     } catch(err) {
+        console.log(err)
         res.send('There was an issue with getting the database')
     }
-    
 })
 
-app.use(express.static(path.join(__dirname, 'html')))
+app.use(express.static(path.join(__dirname, 'HTML')))
+app.use(express.static(path.join(__dirname, 'JavaScript')))
+app.use(express.static(path.join(__dirname, 'CSS')))
+app.use(express.static(path.join(__dirname, 'CSS')))
+app.use(express.static(path.join(__dirname, 'Middleware')))
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`))

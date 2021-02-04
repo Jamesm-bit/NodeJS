@@ -14,42 +14,51 @@ let checkBoxes = document.getElementsByClassName("chk");
 
 
 
-const sendData = (i, f, l) => {
-    const XHR = new XMLHttpRequest();
-    XHR.addEventListener("load", (event) => {
-    })
-    XHR.addEventListener('error', (event) => {
-        console.log({event})
-    })
-
+function sendData(i, f, l) {
     let user = {
         id: i,
         fName: f,
         lName: l
     }
-
     let body = JSON.stringify(user)
-    XHR.open('POST', "/", true)
-    XHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    XHR.send(body)
+    try {
+        fetch('/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: body
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data)
+            })
+    } catch (err) {
+        console.error('Error:', err)
+    }
 }
 
-const deleteData = (i) => {
-    const DXHR = new XMLHttpRequest();
-    DXHR.addEventListener("load", (event) => {
-    })
-    DXHR.addEventListener('error', (event) => {
-        console.log({event})
-    })
-
+function deleteData(i) {
     let user = {
         id: i,
     }
 
     let body = JSON.stringify(user)
-    DXHR.open('POST', "/delete", true)
-    DXHR.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    DXHR.send(body)
+    try {
+        fetch('/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: body
+        })
+            .then(response => console.log('response is ',response.json()))
+            .then(data => {
+                console.log('Success:', data)
+            })
+    } catch (err) {
+        console.error('Error:', err)
+    }
 }
 
 const unCheck = (i) => {
@@ -91,13 +100,13 @@ const addElement = (num, f, l) => {
 
 
 
-    if (fnames.length > 0) {
+    if (fNames.length > 0) {
         for (let z = 0; z < ids.length; z++) {
             if (m == ids[z].innerHTML) {
                 m++
             }
-            for (let y = 0; y < fnames.length; y++) {
-                if (l == lnames[y].innerHTML && f == fnames[z].innerHTML) {
+            for (let y = 0; y < fNames.length; y++) {
+                if (l == lNames[y].innerHTML && f == fNames[z].innerHTML) {
                     return
                 }
             }
@@ -166,12 +175,23 @@ const addElement = (num, f, l) => {
 }
 const getData = () => {
     let nameData;
+    fetch('/names', {
+        headers : { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+           }
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    /*
     $.get("/names", (data) => {
+        console.log('trying to get ',data)
         nameData = data;
         for (item in nameData) {
             addElement(nameData[item].id, nameData[item].fName, nameData[item].lName)
         }
     })
+    */
 }
 
 getData()
@@ -193,7 +213,7 @@ const editFinish = () => {
             checkBoxes[item].style.visibility = "visible";
         }
     }
-    sendData(v,fNameChange,lNameChange)
+    sendData(v, fNameChange, lNameChange)
 }
 
 const editpush = (j) => {
@@ -225,7 +245,7 @@ const del = (z) => {
     document.getElementById("edit"+i).remove()
     document.getElementById("del"+i).remove()
     */
-    
+
     document.getElementById("div" + z).remove()
     document.getElementById("cB" + z).remove()
     deleteData(z)
@@ -235,7 +255,7 @@ const add = () => {
     fname = document.getElementById("fname").value
     lname = document.getElementById("lname").value
     let idnum = addElement(null, fname, lname)
-    
+
 }
 
 const render = () => {
@@ -253,46 +273,46 @@ const removechecked = () => {
     document.getElementById("checkbx").checked = false;
 
     for (item in ids) {
-        
-        if(!(item == 'length' || item =='item'|| item == 'namedItem')){
-            if(checkBoxes[item].checked) {
-                del(ids[item].innerHTML) 
+
+        if (!(item == 'length' || item == 'item' || item == 'namedItem')) {
+            if (checkBoxes[item].checked) {
+                del(ids[item].innerHTML)
             }
         }
-        
+
     }
     ids = document.getElementsByClassName("inid");
     checkBoxes = document.getElementsByClassName("chk");
     for (item in ids) {
-        
-        if(!(item == 'length' || item =='item'|| item == 'namedItem')){
-            if(checkBoxes[item].checked) {
+
+        if (!(item == 'length' || item == 'item' || item == 'namedItem')) {
+            if (checkBoxes[item].checked) {
                 del(ids[item].innerHTML)
             }
         }
-        
+
     }
     ids = document.getElementsByClassName("inid");
     checkBoxes = document.getElementsByClassName("chk");
     for (item in ids) {
-        
-        if(!(item == 'length' || item =='item'|| item == 'namedItem')){
-            if(checkBoxes[item].checked) {
+
+        if (!(item == 'length' || item == 'item' || item == 'namedItem')) {
+            if (checkBoxes[item].checked) {
                 del(ids[item].innerHTML)
             }
         }
-        
+
     }
     ids = document.getElementsByClassName("inid");
     checkBoxes = document.getElementsByClassName("chk");
     for (item in ids) {
-        
-        if(!(item == 'length' || item =='item'|| item == 'namedItem')){
-            if(checkBoxes[item].checked) {
+
+        if (!(item == 'length' || item == 'item' || item == 'namedItem')) {
+            if (checkBoxes[item].checked) {
                 del(ids[item].innerHTML)
             }
         }
-        
+
     }
     checkAll()
 }
