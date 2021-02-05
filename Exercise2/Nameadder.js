@@ -8,6 +8,8 @@ const requestLogger = require('./public/Middleware/requestlogger.js')
 const informationhandler = require('./public/Middleware/informationhandler.js')
 const successfulhandler = require('./public/Middleware/successfulhandler.js')
 const redirecthandler = require('./public/Middleware/redirecthandler.js')
+const clienterrorhandler = require('./public/Middleware/clienterrorhandler.js')
+const servererrorhandler = require('./public/Middleware/servererrorhandler.js')
 
 let db = null
 let namesCollection = null
@@ -17,6 +19,8 @@ app.use(requestLogger)
 app.use(informationhandler)
 app.use(successfulhandler)
 app.use(redirecthandler)
+app.use(clienterrorhandler)
+app.use(servererrorhandler)
 
 try {
     MongoClient.connect('mongodb+srv://JamesMorris:Password123@practicecluster.yr6ww.mongodb.net/<dbname>?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
@@ -121,8 +125,10 @@ app.get('/names', async (req, res) => {
     }
 })
 
+// used for testing error code 300
 app.get('/redirect', (req,res) => {
-    throw {status: 300, message:'redirecting now'}
+    res.status(301)
+    res.send('not here')
 })
 
 app.use(express.static(path.join(__dirname, 'public/')))
