@@ -39,16 +39,17 @@ const nameSchema = new mongoose.Schema({
 });
 const Name = mongoose.model('Name', nameSchema)
 
+// returns all the items in the MongoDB server
 async function getAllNames() {
-    console.log(db.collection('names').find().toArray())
-    return db.collection('names').find().toArray()
+    return await Name.find()
 }
 
-async function addName(i, f, l) {
+//takes an inputed id, first name and last name and adds them to the database
+async function addName(idNum, firstName, lastName) {
     const name = new Name({
-        id: i,
-        fName: f,
-        lName: l
+        id: idNum,
+        fName: firstName,
+        lName: lastName
     })
     try {
         const result = await name.save()
@@ -58,16 +59,17 @@ async function addName(i, f, l) {
     
 }
 
-async function findNames(i, f, l) {
+// checks to see if an name exists at a particular id and if it does updates at that index other wise it creates at the specific id
+async function findNames(idNum, firstName, lastName) {
     const name = await Name
-        .find({ id: i })
+        .find({ id: idNum })
     if (name.length == 0) {
-        addName(i, f, l)
+        addName(idNum, firstName, lastName)
     } else {
         try {
-            const result = await Name.findOneAndUpdate({ id: i }, {
-                fName: f,
-                lName: l
+            const result = await Name.findOneAndUpdate({ id: idNum }, {
+                fName: firstName,
+                lName: lastName
             }, { useFindAndModify: false })
         } catch(err) {
             console.log('there was an error when updating and it threw this error: ',err)
@@ -75,42 +77,46 @@ async function findNames(i, f, l) {
     }
 }
 
-async function deleteName(i) {
-    const result = await Name.findOneAndDelete({ id: i }, (err, docs) => {
-        if (err) {
-            console.log(err)
-        } else {
-        }
-    })
+// deletes an entry at a specific id number
+async function deleteName(idNum) {
+    try{
+        const result = await Name.findOneAndDelete({ id: idNum }) 
+    } catch(err) {
+        console.log('Error when deleteing the feild: ', err)
+    }
+    
 }
 
+// when someone calls a post request to the default directory it adds the passed first name, last name and id to the fundNames function
 app.post('/', (req, res) => {
     findNames(req.body.id, req.body.fName, req.body.lName)
     res.json('Added')
 })
 
-app.post('/delete', (req, res) => {
+// when an id is posted to the /delete directory it passes the id to the deleteName function
+app.post('/delete', async (req, res) => {
     console.log(req.body.id + " deleted at this index")
-    deleteName(req.body.id)
+    await deleteName(req.body.id)
     res.json('deleted item')
 })
 
-app.get('/names', (req, res) => {
+// when a get request is passed to /names it returns all the dataum points in the connected database
+app.get('/names', async (req, res) => {
     try {
-        const allNames = getAllNames()
-        .then(result => {
-            res.json(result)
-        })
+        const allNames = await getAllNames()
         console.log(allNames)
+        res.json(allNames)
     } catch(err) {
         console.log(err)
         res.send('There was an issue with getting the database')
     }
 })
 
-app.use(express.static(path.join(__dirname, 'HTML')))
-app.use(express.static(path.join(__dirname, 'JavaScript')))
-app.use(express.static(path.join(__dirname, 'CSS')))
-app.use(express.static(path.join(__dirname, 'CSS')))
-app.use(express.static(path.join(__dirname, 'Middleware')))
+
+app.use(express.static(path.join(__dirname, 'public/')))
+app.use((req,res) => {
+    res.sendFile(path.join(__dirname,'./public/HTML/index.html'));
+});
+
+
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
