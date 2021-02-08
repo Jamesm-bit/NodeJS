@@ -4,23 +4,19 @@ const path = require('path')
 const app = new express()
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
-const requestLogger = require('./public/Middleware/requestlogger.js')
-const informationhandler = require('./public/Middleware/informationhandler.js')
-const successfulhandler = require('./public/Middleware/successfulhandler.js')
-const redirecthandler = require('./public/Middleware/redirecthandler.js')
-const clienterrorhandler = require('./public/Middleware/clienterrorhandler.js')
-const servererrorhandler = require('./public/Middleware/servererrorhandler.js')
+const requestLogger = require('./developer/Middleware/requestlogger.js')
+const informationhandler = require('./developer/Middleware/informationhandler.js')
+const successfulhandler = require('./developer/Middleware/successfulhandler.js')
+const redirecthandler = require('./developer/Middleware/redirecthandler.js')
+const clienterrorhandler = require('./developer/Middleware/clienterrorhandler.js')
+const notfoundhandler = require('./developer/Middleware/404Error.js')
+const badrequesthandler = require('./developer/Middleware/400Error.js')
+const servererrorhandler = require('./developer/Middleware/servererrorhandler.js')
+const errorCodes = require('./developer/Errors/Errors.js')
 
 let db = null
 let namesCollection = null
 const PORT = process.env.PORT || 5000
-
-app.use(requestLogger)
-app.use(informationhandler)
-app.use(successfulhandler)
-app.use(redirecthandler)
-app.use(clienterrorhandler)
-app.use(servererrorhandler)
 
 try {
     MongoClient.connect('mongodb+srv://JamesMorris:Password123@practicecluster.yr6ww.mongodb.net/<dbname>?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
@@ -38,9 +34,6 @@ try {
 } catch (error) {
     console.log(' The mongoose clients has not connected and threw this error: ', error)
 }
-
-
-
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -125,16 +118,31 @@ app.get('/names', async (req, res) => {
     }
 })
 
+
+
 // used for testing error code 300
 app.get('/redirect', (req,res) => {
     res.status(301)
     res.send('not here')
 })
 
-app.use(express.static(path.join(__dirname, 'public/')))
-app.use((req,res) => {
-    res.sendFile(path.join(__dirname,'./public/HTML/index.html'));
-});
+app.get('/unavalible', (req,res) => {
+    res.statusCode = 400;
+    res.end()
+})
 
+app.get('/', (req,res) => {
+    res.sendFile(path.join(__dirname,'./public/HTML/index.html'));
+})
+
+app.use(express.static(path.join(__dirname, 'public/')))
+app.use(requestLogger)
+app.use(informationhandler)
+app.use(successfulhandler)
+app.use(redirecthandler)
+app.use(clienterrorhandler)
+app.use(servererrorhandler)
+app.use(notfoundhandler)
+app.use(badrequesthandler)
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
