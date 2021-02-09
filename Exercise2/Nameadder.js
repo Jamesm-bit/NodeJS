@@ -14,6 +14,7 @@ const badrequesthandler = require('./developer/Middleware/400Error.js')
 const servererrorhandler = require('./developer/Middleware/servererrorhandler.js')
 const errorCodes = require('./developer/Errors/Errors.js')
 
+
 let db = null
 let namesCollection = null
 const PORT = process.env.PORT || 5000
@@ -128,7 +129,12 @@ app.get('/redirect', (req,res) => {
 
 app.get('/unavalible', (req,res) => {
     res.statusCode = 400;
-    res.end()
+    res.send(badrequesthandler)
+})
+
+app.get('/notexist', (req,res) => {
+    res.statusCode = 404;
+    res.send('Not exist')
 })
 
 app.get('/', (req,res) => {
@@ -144,5 +150,6 @@ app.use(clienterrorhandler)
 app.use(servererrorhandler)
 app.use(notfoundhandler)
 app.use(badrequesthandler)
+
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`))

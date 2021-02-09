@@ -1,5 +1,5 @@
-const http = require('http')
 
+// if the server returns an error code higer than 500 it tells the user that the server is having server issues
 let servererrorhandler = (req, res, next) => {
     if (res.statusCode > 499) {
         res.render('the server is experiencing issues please try again in a few minuets or contact support')

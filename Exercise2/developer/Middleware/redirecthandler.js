@@ -1,5 +1,5 @@
-const http = require('http')
 
+//checks for 300 errors and redirects to the home page.
 let redirecthandler = (req, res, next) => {
     console.log(res.statusCode)
     if (res.statusCode > 299 && res.statusCode < 400) {
