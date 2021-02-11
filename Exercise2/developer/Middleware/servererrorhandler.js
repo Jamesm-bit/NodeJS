@@ -1,8 +1,13 @@
 
 // if the server returns an error code higer than 500 it tells the user that the server is having server issues
-let servererrorhandler = (req, res, next) => {
-    if (res.statusCode > 499) {
-        res.render('the server is experiencing issues please try again in a few minuets or contact support')
+let servererrorhandler = (error, res, next) => {
+    console.log('reached the 500 error')
+    if(error.status > 499 ) {
+        console.log('Error status: ',error.status)
+        console.log('Message: ', error.message)
+        res.status(error.status)
+        res.json('error code 200 has been thrown')
+        res.send('500 error')
     } else {
         next()
     }

@@ -4,15 +4,16 @@ const path = require('path')
 const app = new express()
 const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
+const createError = require('http-errors')
 const requestLogger = require('./developer/Middleware/requestlogger.js')
 const informationhandler = require('./developer/Middleware/informationhandler.js')
 const successfulhandler = require('./developer/Middleware/successfulhandler.js')
 const redirecthandler = require('./developer/Middleware/redirecthandler.js')
 const clienterrorhandler = require('./developer/Middleware/clienterrorhandler.js')
+const servererrorhandler = require('./developer/Middleware/servererrorhandler.js')
 const notfoundhandler = require('./developer/Middleware/404Error.js')
 const badrequesthandler = require('./developer/Middleware/400Error.js')
-const servererrorhandler = require('./developer/Middleware/servererrorhandler.js')
-const errorCodes = require('./developer/Errors/Errors.js')
+const errorCodes = require('./developer/Middleware/Errors.js')
 
 
 let db = null
@@ -127,9 +128,8 @@ app.get('/redirect', (req,res) => {
     res.send('not here')
 })
 
-app.get('/unavalible', (req,res) => {
-    res.statusCode = 400;
-    res.send(badrequesthandler)
+app.post('/unavalible', (req,res) => {
+    throw createError(400, "this is unavalible")
 })
 
 app.get('/notexist', (req,res) => {
@@ -143,6 +143,7 @@ app.get('/', (req,res) => {
 
 app.use(express.static(path.join(__dirname, 'public/')))
 app.use(requestLogger)
+/*
 app.use(informationhandler)
 app.use(successfulhandler)
 app.use(redirecthandler)
@@ -150,6 +151,11 @@ app.use(clienterrorhandler)
 app.use(servererrorhandler)
 app.use(notfoundhandler)
 app.use(badrequesthandler)
+*/
 
+app.use((error,req,res,next) => {
+    console.log('Error status: ', error.status)
+    console.log('Message: ', error.message)
+})
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`))

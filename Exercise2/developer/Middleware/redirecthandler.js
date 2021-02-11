@@ -1,12 +1,13 @@
 
 //checks for 300 errors and redirects to the home page.
-let redirecthandler = (req, res, next) => {
-    console.log(res.statusCode)
-    if (res.statusCode > 299 && res.statusCode < 400) {
-        console.log(`the server has throw the error code ${res.statusCode} and will now redirect you`)
-        res.writeHead(301,{location: '/'})
-        res.end()
-        next()
+let redirecthandler = (error, res, next) => {
+    console.log('reached the 300 handler')
+    if(error.status > 299 && error.status < 400) {
+        console.log('Error status: ',error.status)
+        console.log('Message: ', error.message)
+        res.status(error.status)
+        res.json('error code 300 has been thrown')
+        res.send('300 error')
     } else {
         next()
     }

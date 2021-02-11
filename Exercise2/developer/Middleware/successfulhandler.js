@@ -1,9 +1,13 @@
 
 //if the request is succesful it logs it in the server console and continues
-let successfulhandler = (req, res, next) => {
-    if (res.statusCode > 199 && res.statusCode < 300) {
-        console.log(`the server has responded with the code ${res.statusCode} and has succesfully run`)
-        next()
+let successfulhandler = (error, res, next) => {
+    console.log('reaching the 200 handler')
+    if(error.status > 199 && error.status < 300) {
+        console.log('Error status: ',error.status)
+        console.log('Message: ', error.message)
+        res.status(error.status)
+        res.json('error code 200 has been thrown')
+        res.send('200 error')
     } else {
         next()
     }
