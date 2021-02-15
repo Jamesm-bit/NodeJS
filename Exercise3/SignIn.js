@@ -2,6 +2,25 @@ const mongoose = require('mongoose');
 const express = require('express');
 const app = new express();
 const path = require('path')
+const bodyParser = require('body-parser')
+const passport = require('passport')
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
+
+passport.use(new GoogleStrategy({
+    clientID: 'testuserrapidops@gmail.com',
+    clientSecret: 'zm5S44ebEzmwZfs',
+    callbackURL: 'http://localhost:5000/'
+    },
+    function (accessToken,refreshToken, profile, done) {
+        user.findorCreate({ googleID: profile.id }, function (err, user) {
+            return done(err, user);
+        })
+    }
+))
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(express.json())
 
 const PORT = process.env.PORT || 5000
 
@@ -18,10 +37,10 @@ const userSchema = new mongoose.Schema({
     email: String
 });
 
-const user = mongoose.model('User', userSchema)
+const User = mongoose.model('User', userSchema)
 
 async function addUser(userName, userPassword, userEmail) {
-    const user = new user({
+    const user = new User({
         username: userName,
         password: userPassword,
         email: userEmail
@@ -33,10 +52,11 @@ async function addUser(userName, userPassword, userEmail) {
     }
 }
 
-async function findUser(userName, userPassword, userEmail) {
-    const userName = await user.find({ user: userName })
-    const userEmail = await user.find({ email: userEmail })
-    if (userName.length == 0 || userEmail == 0) {
+async function findUser(res, userName, userPassword, userEmail) {
+    console.log(userName)
+    const userNameFind = await User.find({ user: userName })
+    const userEmailFind = await User.find({ email: userEmail })
+    if (userNameFind.length == 0 && userEmailFind.length == 0) {
         addUser(userName, userPassword, userEmail)
     } else {
         res.end()
@@ -44,10 +64,7 @@ async function findUser(userName, userPassword, userEmail) {
 }
 
 app.post('/signup', (req, res) => {
-    console.log(req.body)
-    /*
-    findNames(req.body.username, req.body.password, req.body.email)
-    */
+    findUser(res, req.body.username, req.body.password, req.body.email)
     res.json('Added')
 })
 
@@ -58,6 +75,15 @@ app.get('/', (req, res) => {
 app.get('/signup', (req, res) => {
     res.sendFile(path.join(__dirname, './public/HTML/signup.html'));
 })
+
+app.get('/googlesignin', passport.authenticate('google', { scope: ['https://googleapis.com/auth/plus.login'] }))
+
+app.get('/googlesignin/callback',
+    passport.authenticate('google', { failureRedirect: '/' }),
+    (res, req) => {
+        console.log('getting')
+        res.redirect('/');
+    })
 
 app.use(express.static(path.join(__dirname, 'public/')))
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`))

@@ -36,9 +36,9 @@ async function signupUser() {
         email: $('#Email').val()
     }
     let body = JSON.stringify(user)
-    console.log(body)
+    
     try {
-        fetch('/signup', {
+        await fetch('/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -52,6 +52,7 @@ async function signupUser() {
     } catch (error) {
         console.log(`there was an error signing up the user: ${error}`)
     }
+    console.log(body)
     /*
    window.location.href = "http://localhost:5000/"
    */
