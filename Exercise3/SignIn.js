@@ -6,6 +6,8 @@ const bodyParser = require('body-parser')
 const passport = require('passport')
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 
+
+// used to set the pass port using the google OAuth2 strategy
 passport.use(new GoogleStrategy({
     clientID: 'testuserrapidops@gmail.com',
     clientSecret: 'zm5S44ebEzmwZfs',
