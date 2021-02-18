@@ -1,5 +1,6 @@
 const currentURL = 'http://localhost:5000/'
 
+
 let users = []
 
 const getData = () => {
@@ -21,13 +22,34 @@ getData()
 
 console.log(users)
 const signInUser = () => {
+    let userSignIn = {
+        username: $('#UserName').val(),
+        password: $('#Password').val(),
+        email: $('#UserName').val()
+    }
+    let body = JSON.stringify(userSignIn)
+    fetch('/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: body
+    })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data)
+        })
+    /*
     for(item in users) {
         if($('#UserName').val()==users[item].username || $('#UserName').val()==users[item].email) {
             if($('#Password').val()==users[item].password){
                 window.location.href = 'http://localhost:5000/signedin'
-            } 
+                return;
+            }
         }
     }
+    alert('your user name or password are incorrect')
+    */
 }
 
 const moveToSignUp = () => {
@@ -41,7 +63,15 @@ async function signupUser() {
         email: $('#Email').val()
     }
     let body = JSON.stringify(user)
-    
+    for(item in users) {
+        if(users[item].username == user.username){
+            alert('that username has already been taken')
+            return
+        } else if(users[item].email == user.email) {
+            alert('that email has already been taken')
+            return
+        }
+    }
     try {
         await fetch('/signup', {
             method: 'POST',
