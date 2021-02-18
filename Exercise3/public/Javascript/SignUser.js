@@ -38,6 +38,11 @@ const signInUser = () => {
         .then(response => response.json())
         .then(data => {
             console.log('Success:', data)
+            if(data == 'the user is good') {
+                console.log('success')
+            } else {
+                alert('the username or passwrod is not good')
+            }
         })
     /*
     for(item in users) {
