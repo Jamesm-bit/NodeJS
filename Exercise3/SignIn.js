@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const myPlaintextPassword = 's0/\/\P4$$w0rD';
 const someOtherPlaintexPassword = 'not_bacon';
+const jwt = require('jsonwebtoken')
 
 
 
@@ -42,17 +43,43 @@ async function getAllUsers() {
     return await User.find()
 }
 
+function verifyToken(req,res,next) {
+    const tokenHeader = req.headers['authorization'];
+    if(typeof tokenHeader !== 'undefined') {
+        const tokenSplit = tokenHeader.split(' ')
+        const token = tokenSplit[1]
+        req.token = token
+        next()
+    } else {
+        res.status(403).json('notallowed')
+    }
+    console.log(fuck)
+}
 async function checkforuser(res, userName, userPassword, userEmail) {
+    res.json('Welcome')
+    /*
     let usersList = await getAllUsers()
     for (item in usersList) {
-        bcrypt.compare(userPassword, usersList[item].password, function (err,result) {
-            if(result) {
-                if(userName == usersList[item].username || userEmail== usersList[item].email) {
-                    res.json('the user is good')
+        bcrypt.compare(userPassword, usersList[item].password, function (err, result) {
+            if (result) {
+                if (userName == usersList[item].username || userEmail == usersList[item].email) {
+                    console.log("registed uname ", usersList[item].username)
+                    console.log("requested uname ", userName)
+                    jwt.sign({ usernae: userName, password: usersList[item].password, email: userEmail }, 'secretkey', (err, token) => {
+                        res.json({
+                            token
+                        })
+                    })
+                    res.end()
+                    return
                 }
+            } else {
+                console.log('test to see if it finished the statement')
+                res.status(401).json('the user is bad')
             }
         })
     }
+    */
 }
 
 //adds the user to the database
@@ -82,7 +109,7 @@ async function findUser(res, userName, userPassword, userEmail) {
         })
     } else {
         res.end()
-    }
+    } console.log('getting to line 88')
     res.redirect('http://localhost:5000/')
 }
 
@@ -97,7 +124,18 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', (req, res) => {
-    checkforuser(res, req.body.username, req.body.password, req.body.email)
+    let user = {
+        uname:req.body.username,
+        password:req.body.password,
+        useremail:req.body.email
+    }
+
+    jwt.sign({user},'secretkey', (err,token) => {
+        res.json({
+            token
+        })
+    })
+    //checkforuser(res, req.body.username, req.body.password, req.body.email)
 })
 
 //sends the html for the sign up page
@@ -110,37 +148,7 @@ app.get('/users', async (req, res) => {
     const allUsers = await getAllUsers()
     res.json(allUsers)
 })
-/*
-//used to creake a token for varification
-router.post('/register', function (req, res) {
-    let hashedPasswordTest = bcrypt.hashSync(req.body.password, 8)
-    User.create({
-        username: req.body.username,
-        password: hashedPasswordTest,
-        email: req.body.email
-    },
-    function(err,user) {
-        if (err) return res.status(500).send('there was a problem registering the user')
 
-        let token = jwt.sign({ id:user._id}, config.secret, {
-            expiresIn: 86400
-        });
-        res.status(200).send({auth:true,token:token})
-    })
-})
-
-//used to check for a valid token sent
-router.get('/me', function(req,res) {
-    let token = req.heasers['s-access-token'];
-    if(!token) return res.status(401).send({auth:false,message:'no token provided.'});
-
-    jwt.verify(token,process.env.SECRET, function(err, decoded) {
-        if(err)return res.status(500).send({auth:false,message:'Failed to authenticate token'})
-
-        res.status(200).send(decoded)
-    })
-})
-*/
 //used for the google authentication
 app.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
 
@@ -153,6 +161,15 @@ app.get('/github', passport.authenticate('github', { scope: ['user:email'] }))
 //used to tell the user they are signed in
 app.get('/signedin', (req, res) => {
     res.json('Logged in')
+})
+app.get('/homesigning',verifyToken, (req,res) => {
+    jwt.verify(req.token,'secretkey',(error,authData) => {
+        if(err) {
+            res.status(403).json('notallowed')
+        } else {
+            res.sendFile(path.join(__dirname, './public/HTML/signup.html'));
+        }
+    })
 })
 app.use(express.static(path.join(__dirname, 'public/')))
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`))

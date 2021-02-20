@@ -35,14 +35,10 @@ const signInUser = () => {
         },
         body: body
     })
-        .then(response => response.json())
+        
+    .then(response => response.json())
         .then(data => {
-            console.log('Success:', data)
-            if(data == 'the user is good') {
-                console.log('success')
-            } else {
-                alert('the username or passwrod is not good')
-            }
+            localStorage.setItem('token',data.token)
         })
     /*
     for(item in users) {
@@ -55,6 +51,8 @@ const signInUser = () => {
     }
     alert('your user name or password are incorrect')
     */
+   let token = localStorage.getItem(token)
+   window.location.href = "http://localhost:5000/"
 }
 
 const moveToSignUp = () => {
@@ -85,15 +83,13 @@ async function signupUser() {
             },
             body: body
         })
-            .then(response => response.json())
+            /*.then(response => console.log(response))
             .then(data => {
                 console.log('Success:', data)
-            })
+            })*/
     } catch (error) {
         console.log(`there was an error signing up the user: ${error}`)
     }
     console.log(body)
-    /*
    window.location.href = "http://localhost:5000/"
-   */
 }
