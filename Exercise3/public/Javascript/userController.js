@@ -1,6 +1,6 @@
 const currentURL = 'http://localhost:5000/'
 
-
+localStorage.setItem('token', '')
 let users = []
 
 const getData = () => {
@@ -21,8 +21,21 @@ const getData = () => {
 getData()
 
 async function getToken() {
-    return await localStorage.getItem('token')
+    return localStorage.getItem('token')
+}
 
+async function gotToSignedup() {
+    getToken()
+        .then(result =>
+            fetch('/homesignin', {
+                method: 'GET',
+                headers: {
+                    'Authorization': result,
+                    'Content-Type': 'application/json'
+                }
+            }).then(result => result.json())
+                .then(data => alert(data))
+        )
 }
 
 //sends the user login information to the server and recives the access token to the signin page
@@ -33,6 +46,8 @@ async function signInUser() {
         password: $('#Password').val(),
         email: $('#UserName').val()
     }
+    localStorage.setItem('UserName', $('#UserName').val())
+    localStorage.setItem('Password', $('#Password').val())
     let body = JSON.stringify(userSignIn)
     fetch('/', {
         method: 'POST',
@@ -46,20 +61,7 @@ async function signInUser() {
         .then(data => {
             tokenStore = data
             localStorage.setItem('token', data)
-        })
-/*
-    getToken()
-        .then(result =>
-            fetch('/homesignin', {
-                method: 'GET',
-                headers: {
-                    'Authorization': result,
-                    'Content-Type': 'application/json'
-                }
-            }).then(result => result.json())
-            .then(data => alert(data))
-        )
-        */
+        }).then(alert('the data has been sent to the server please press the got to users page button to advance'))
 }
 
 const moveToSignUp = () => {
