@@ -1,0 +1,63 @@
+body {
+    font: 400 25px "Arial";
+    background-color: #e6e6e6;
+}
+
+button{
+    font-size: 17px;
+    background-color: transparent;
+    margin: 2px;
+    color: white;
+    border: 3px;
+    border-color: white;
+    border-radius: 8px;
+    border-style: solid;
+}
+a {
+    color: white;
+    border: 3px;
+    border-color: white;
+    border-radius: 8px;
+    border-style: solid;
+    text-decoration: none;
+    font-size: large;
+    margin-bottom: 10px;
+}
+#inputBoxes{
+    padding-top: 10px;
+    width: 200px;
+    padding-left: 20px;
+}
+.signinboxes{
+    display: flex;
+    flex-direction: column;
+}
+.columnBoxes {
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    padding: 10px;
+    padding-top: 100px;
+}
+#externalHolder {
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+    height: 330px;
+    width: 630px;
+    border: solid;
+    border-width: 2px;
+    border-color: white;
+    background-color: #0099ff;
+    border-radius: 30px;
+    position: absolute;
+    left: 50%;
+    top: 35%;
+    margin-left: -315px;
+    margin-bottom: -130px;
+    align-items: center;
+}
+#mainholder{
+    display: flex;
+}

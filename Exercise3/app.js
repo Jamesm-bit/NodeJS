@@ -43,43 +43,34 @@ async function getAllUsers() {
     return await User.find()
 }
 
-function verifyToken(req,res,next) {
-    const tokenHeader = req.headers['authorization'];
-    if(typeof tokenHeader !== 'undefined') {
-        const tokenSplit = tokenHeader.split(' ')
-        const token = tokenSplit[1]
-        req.token = token
-        next()
-    } else {
-        res.status(403).json('notallowed')
-    }
-    console.log(fuck)
-}
-async function checkforuser(res, userName, userPassword, userEmail) {
-    res.json('Welcome')
-    /*
+//used to sheck if an inputted user is in the database and if it is send an access token to the html
+async function checkforuser(userName, userPassword, userEmail) {
     let usersList = await getAllUsers()
-    for (item in usersList) {
-        bcrypt.compare(userPassword, usersList[item].password, function (err, result) {
-            if (result) {
-                if (userName == usersList[item].username || userEmail == usersList[item].email) {
-                    console.log("registed uname ", usersList[item].username)
-                    console.log("requested uname ", userName)
-                    jwt.sign({ usernae: userName, password: usersList[item].password, email: userEmail }, 'secretkey', (err, token) => {
-                        res.json({
-                            token
-                        })
-                    })
-                    res.end()
-                    return
-                }
-            } else {
-                console.log('test to see if it finished the statement')
-                res.status(401).json('the user is bad')
-            }
-        })
+    let user = {
+        userName,
+        userPassword,
+        userEmail
     }
-    */
+    return new Promise(resolve => {
+        for(item in usersList){
+            bcrypt.compare(userPassword, usersList[item].password, function (err, result) {
+                if (result) {
+                    console.log('the password matched something in the data base')
+                    if (userName == usersList[item].username || userEmail == usersList[item].email) {
+                        //console.log('the username matched somthing in the data base at the same posisition as the password '+userName+' '+usersList[item].username)
+                        console.log('the email matched something at the same postion as the password ')
+                        try {
+                            const token = jwt.sign({user},'secretkey')
+                            resolve(token)
+                        } catch {
+                            resolve('An error occured getting the token')
+                        }
+                    }
+                }
+            })
+        }
+        resolve('user not found')
+    }) 
 }
 
 //adds the user to the database
@@ -109,7 +100,7 @@ async function findUser(res, userName, userPassword, userEmail) {
         })
     } else {
         res.end()
-    } console.log('getting to line 88')
+    }
     res.redirect('http://localhost:5000/')
 }
 
@@ -123,19 +114,9 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, './public/HTML/index.html'));
 })
 
-app.post('/', (req, res) => {
-    let user = {
-        uname:req.body.username,
-        password:req.body.password,
-        useremail:req.body.email
-    }
-
-    jwt.sign({user},'secretkey', (err,token) => {
-        res.json({
-            token
-        })
-    })
-    //checkforuser(res, req.body.username, req.body.password, req.body.email)
+app.post('/', async (req, res) => {
+    let returnedtoken = await checkforuser(req.body.username,req.body.password,req.body.email) 
+    console.log(returnedtoken)
 })
 
 //sends the html for the sign up page
@@ -162,14 +143,17 @@ app.get('/github', passport.authenticate('github', { scope: ['user:email'] }))
 app.get('/signedin', (req, res) => {
     res.json('Logged in')
 })
-app.get('/homesigning',verifyToken, (req,res) => {
-    jwt.verify(req.token,'secretkey',(error,authData) => {
-        if(err) {
-            res.status(403).json('notallowed')
+
+//verifys the token sent and if it is good it redirects to the signed in screen
+app.get('/homesignin', (req,res) => {
+    jwt.verify(req.headers.authorization,'secretkey',(error,authData) => {
+        if(error) {
+            res.status(403).json('your credentials were not authorized either because they were incorrect or because you tried to access something incorrectly')
         } else {
-            res.sendFile(path.join(__dirname, './public/HTML/signup.html'));
+            res.json('you are signed in');
         }
     })
 })
+
 app.use(express.static(path.join(__dirname, 'public/')))
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`))

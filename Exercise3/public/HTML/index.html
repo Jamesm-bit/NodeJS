@@ -7,19 +7,32 @@
     <title>Furth Pattern</title>
     <script src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <link href="/CSS/style.css" rel="stylesheet">
 </head>
 
 <body>
     <form>
-        <input type="text" id="UserName" placeholder="Username or Email"></input>
-        <input type="password" id="Password" placeholder="Password"></input>
-        <button type="button" id="Signip Button" onclick="signInUser()">Sign in</button>
-        <button type="button" id="Signup Button" onclick="moveToSignUp()">Sign up</button>
-        <a href="/google">Sign in with Google</a>
-        <a href="/facebook">Sign in with Facebook</a>
-        <a href="/github">Sign in with Github</a>
+        <div id="externalHolder">
+            <div id="mainholder">
+                <div id="textInput" class="columnBoxes">
+                    <div id="inputBoxes">
+                        <input type="text" id="UserName" placeholder="Username or Email"></input>
+                        <input type="password" id="Password" placeholder="Password"></input>
+                    </div>
+                </div>
+                <div id="externalSignIn" class="columnBoxes">
+                    <a href="/google">Sign in with Google</a>
+                    <a href="/facebook">Sign in with Facebook</a>
+                    <a href="/github">Sign in with Github</a>
+                </div>
+            </div>
+            <div>
+                <button type="button" id="Signip Button" onclick="signInUser()">Sign in</button>
+                <button type="button" id="Signup Button" onclick="moveToSignUp()">Sign up</button>
+            </div>
+        </div>
     </form>
-    <script src="/Javascript/SignUser.js"></script>
+    <script src="/Javascript/userController.js"></script>
 </body>
 
 </html>

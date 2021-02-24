@@ -5,23 +5,29 @@ let users = []
 
 const getData = () => {
     fetch('/users', {
-        headers : { 
+        headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-           }
-    })
-    .then(response => response.json())
-    .then(data => {
-        for(item in data) {
-            users.push(data[item])
         }
     })
+        .then(response => response.json())
+        .then(data => {
+            for (item in data) {
+                users.push(data[item])
+            }
+        })
 }
 
 getData()
 
-console.log(users)
-const signInUser = () => {
+async function getToken() {
+    return await localStorage.getItem('token')
+
+}
+
+//sends the user login information to the server and recives the access token to the signin page
+async function signInUser() {
+    let tokenStore;
     let userSignIn = {
         username: $('#UserName').val(),
         password: $('#Password').val(),
@@ -31,28 +37,29 @@ const signInUser = () => {
     fetch('/', {
         method: 'POST',
         headers: {
+            'Authorization': 'test',
             'Content-Type': 'application/json'
         },
         body: body
     })
-        
-    .then(response => response.json())
+        .then(response => response.json())
         .then(data => {
-            localStorage.setItem('token',data.token)
+            tokenStore = data
+            localStorage.setItem('token', data)
         })
-    /*
-    for(item in users) {
-        if($('#UserName').val()==users[item].username || $('#UserName').val()==users[item].email) {
-            if($('#Password').val()==users[item].password){
-                window.location.href = 'http://localhost:5000/signedin'
-                return;
-            }
-        }
-    }
-    alert('your user name or password are incorrect')
-    */
-   let token = localStorage.getItem(token)
-   window.location.href = "http://localhost:5000/"
+/*
+    getToken()
+        .then(result =>
+            fetch('/homesignin', {
+                method: 'GET',
+                headers: {
+                    'Authorization': result,
+                    'Content-Type': 'application/json'
+                }
+            }).then(result => result.json())
+            .then(data => alert(data))
+        )
+        */
 }
 
 const moveToSignUp = () => {
@@ -66,11 +73,11 @@ async function signupUser() {
         email: $('#Email').val()
     }
     let body = JSON.stringify(user)
-    for(item in users) {
-        if(users[item].username == user.username){
+    for (item in users) {
+        if (users[item].username == user.username) {
             alert('that username has already been taken')
             return
-        } else if(users[item].email == user.email) {
+        } else if (users[item].email == user.email) {
             alert('that email has already been taken')
             return
         }
@@ -83,13 +90,9 @@ async function signupUser() {
             },
             body: body
         })
-            /*.then(response => console.log(response))
-            .then(data => {
-                console.log('Success:', data)
-            })*/
     } catch (error) {
         console.log(`there was an error signing up the user: ${error}`)
     }
     console.log(body)
-   window.location.href = "http://localhost:5000/"
+    window.location.href = "http://localhost:5000/"
 }
